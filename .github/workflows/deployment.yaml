@@ -23,7 +23,7 @@ jobs:
           # It be a shallow repository (i.e., only the commits needed to reflect the latest state) and thus not have the full commit history
           # of the original repository. 
           # You need to 'unshallow' the github repo (i.e., retrieve the full commit history) only for one time in the first job.
-          git fetch --unshallow "https://github.com/Majd-Mawed/Assignment-1.git"
+          git fetch "https://github.com/Majd-Mawed/Assignment-1.git"
           git config user.name "Majd-Mawed"
           git config user.email "mawedmajd@gmail.com"
           # If there is no branch, create one using the code:
