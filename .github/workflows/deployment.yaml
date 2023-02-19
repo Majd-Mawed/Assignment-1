@@ -7,7 +7,7 @@ on:
 jobs:
   copy-file:
     runs-on: ubuntu-latest
-    environment: MyEnvironmentName # The GitHub Environment in which we have set up for secrets (tokens, passwords, ...)
+    environment: gitlab # The GitHub Environment in which we have set up for secrets (tokens, passwords, ...)
     steps:
       - name: Checkout # This step is a security check default by the GitHub. Use it once at each job.
         uses: actions/checkout@v2 # predefined by GitHub
