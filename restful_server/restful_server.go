@@ -1,7 +1,7 @@
 package restful_server
 
 import (
-	"Render/utils"
+	"RESTclient/utils"
 	"encoding/json"
 	"fmt"
 	"log"
