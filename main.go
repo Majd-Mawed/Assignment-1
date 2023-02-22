@@ -1,14 +1,14 @@
 package main
 
 import (
-	"Assignment 1/ handler"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 )
 
-type uni struct {
+type UNI struct {
 	name      string `json:"name"`
 	country   string `json:"country"`
 	isocode   string `json:"isocode"`
@@ -28,9 +28,9 @@ func main() {
 
 	// Standard http server with reference to stubbed handler
 	// If you want to adapt this, ensure to adjust path for compatibility with project
-	http.HandleFunc("/unisearcher/v1/uniinfo/", printhttp)
-	http.HandleFunc("/unisearcher/v1/neighbourunis/", printhttp)
-	http.HandleFunc("/unisearcher/v1/diag/", printhttp)
+	http.HandleFunc("/unisearcher/v1/uniinfo/", UniFunction)
+	//http.HandleFunc("/unisearcher/v1/neighbourunis/", printhttp)
+	//http.HandleFunc("/unisearcher/v1/diag/", printhttp)
 
 	log.Println("Running on port", port)
 
@@ -41,51 +41,78 @@ func main() {
 
 }
 
-func printhttp(w http.ResponseWriter, r *http.Request) {
+func UniFunction(w http.ResponseWriter, r *http.Request) {
 
-	urluni := "http://universities.hipolabs.com/"
-	urlnab := "https://restcountries.com/"
+	url := "http://universities.hipolabs.com/"
 
 	// Create new request
-	runi, erruni := http.NewRequest(http.MethodGet, urluni, nil)
-	if erruni != nil {
-		fmt.Errorf("Error in creating request:", erruni.Error())
-	}
-
-	rnab, errnab := http.NewRequest(http.MethodGet, urlnab, nil)
-	if errnab != nil {
-		fmt.Errorf("Error in creating request:", errnab.Error())
+	r, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		fmt.Errorf("Error in creating request:", err.Error())
 	}
 
 	// Setting content type -> effect depends on the service provider
-	runi.Header.Add("content-type", "application/json")
-	rnab.Header.Add("content-type", "application/json")
+	r.Header.Add("content-type", "application/json")
 
+	// Instantiate the client
 	client := &http.Client{}
 	defer client.CloseIdleConnections()
 
 	// Issue request
-	resuni, erruni := client.Do(runi)
+	res, err := client.Do(r)
 	//res, err := client.Get(url) // Alternative: Direct issuing of requests, but fewer configuration options
-	if erruni != nil {
-		fmt.Errorf("Error in response:", erruni.Error())
+	if err != nil {
+		fmt.Errorf("Error in response:", err.Error())
 	}
 
-	resnab, errnab := client.Do(rnab)
-	//res, err := client.Get(url) // Alternative: Direct issuing of requests, but fewer configuration options
-	if errnab != nil {
-		fmt.Errorf("Error in response:", errnab.Error())
+	// HTTP Header content
+	fmt.Println("Status:", res.Status)
+	fmt.Println("Status code:", res.StatusCode)
+
+	fmt.Println("Content type:", res.Header.Get("content-type"))
+	fmt.Println("Protocol:", res.Proto)
+
+	decoder := json.NewDecoder(r.Body)
+	// Ensure parser fails on unknown fields (baseline way of detecting different structs than expected ones)
+	// Note: This does not lead to a check whether an actually provided field is empty!
+	decoder.DisallowUnknownFields()
+
+	// Prepare empty struct to populate
+	uni := UNI{}
+
+	// Decode location instance --> Alternative: "err := json.NewDecoder(r.Body).Decode(&location)"
+
+	// Validation of input (Golang does not do that itself :()
+
+	// TODO: Write convenience function for validation
+
+	if uni.name == "" {
+		http.Error(w, "Invalid input: Field 'Name' is empty.", http.StatusBadRequest)
+		return
 	}
 
-	fmt.Println("Status:", resuni.Status)
-	fmt.Println("Status code:", resuni.StatusCode)
+	if uni.country == "" {
+		http.Error(w, "Invalid input: Field 'Postcode' not found.", http.StatusBadRequest)
+		return
+	}
 
-	fmt.Println("Content type:", resuni.Header.Get("content-type"))
-	fmt.Println("Protocol:", resuni.Proto)
+	// Flat printing
+	fmt.Println("Received following request:")
+	fmt.Println(uni)
 
-	fmt.Println("Status:", resnab.Status)
-	fmt.Println("Status code:", resnab.StatusCode)
+	// Pretty printing
+	output, err := json.MarshalIndent(uni, "", "  ")
+	if err != nil {
+		http.Error(w, "Error during pretty printing", http.StatusInternalServerError)
+		return
+	}
 
-	fmt.Println("Content type:", resnab.Header.Get("content-type"))
-	fmt.Println("Protocol:", resnab.Proto)
+	fmt.Println("Pretty printing:")
+	fmt.Println(string(output))
+
+	// TODO: Handle content (e.g., writing to DB, process, etc.)
+
+	// Return status code (good practice)
+	http.Error(w, "OK", http.StatusOK)
+
 }
