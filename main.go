@@ -1,7 +1,7 @@
 package main
 
 import (
-	"02-JSON-demo/handler"
+	"Assignemnt1/handler"
 	"log"
 	"net/http"
 	"os"
@@ -16,8 +16,9 @@ func main() {
 		port = "8080"
 	}
 
-	// Set up handler endpoints
+	http.HandleFunc("/", handler.DefaultHandler)
 	http.HandleFunc("/unisearcher/v1/uniinfo/", handler.HandleUniRequest)
+	http.HandleFunc("/unisearcher/v1/neighbourunis/", handler.HandleNabUniRequest)
 
 	// Start server
 	log.Println("Starting server on port " + port + " ...")

@@ -1,3 +1,3 @@
-module 02-JSON-demo
+module Assignemnt1
 
 go 1.15
