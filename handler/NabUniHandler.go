@@ -20,7 +20,7 @@ func HandleNabUniRequest(w http.ResponseWriter, r *http.Request) {
 	} else {
 		name = "name/" + parts[4]
 	}
-	url := "https://restcountries.com/v2/" + name
+	url := "https://restcountries.com/v3.1/" + name
 
 	NewRequest, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {

@@ -8,7 +8,14 @@ type UNI struct {
 }
 
 type NABUNI struct {
-	Name      string            `json:"name"`
-	Isocode   string            `json:"alpha_two_code"`
-	languages map[string]string `json:"languages"`
+	Name struct {
+		Name string `json:"common"`
+	} `json:"name"`
+	Languages map[string]interface{} `json:"languages"`
+	Map       map[string]interface{} `json:"maps"`
+	//Borders   []string               `json:"borders"`
+}
+
+type NABUNIBORDERS struct {
+	Borders []string `json:"borders"`
 }
