@@ -12,11 +12,15 @@ Dedicated handler for POST requests
 */
 func HandleNabUniRequest(w http.ResponseWriter, r *http.Request) {
 
-	parts := strings.Split(r.URL.Path, "/")
-	countryname := parts[4]
-	uniname := parts[5]
+	name := ""
 
-	url := "https://restcountries.com/search?name=" + countryname + "/" + uniname
+	parts := strings.Split(r.URL.Path, "/")
+	if parts[4] == "" {
+		name = "all"
+	} else {
+		name = "name/" + parts[4]
+	}
+	url := "https://restcountries.com/v2/" + name
 
 	NewRequest, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
@@ -52,7 +56,7 @@ func HandleNabUniRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Println(nabuni)
-	//fmt.Fprintf(w, "%v", nabuni)
+	fmt.Fprintf(w, "%v", nabuni)
 
 	// Return status code (good practice)
 	http.Error(w, "OK", http.StatusOK)

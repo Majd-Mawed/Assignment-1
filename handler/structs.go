@@ -8,8 +8,7 @@ type UNI struct {
 }
 
 type NABUNI struct {
-	Name     string   `json:"name"`
-	Country  string   `json:"country"`
-	Webpages []string `json:"web_pages"`
-	Isocode  string   `json:"alpha_two_code"`
+	Name      string            `json:"name"`
+	Isocode   string            `json:"alpha_two_code"`
+	languages map[string]string `json:"languages"`
 }
