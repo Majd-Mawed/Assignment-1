@@ -20,7 +20,6 @@ func HandleNabUniRequest(w http.ResponseWriter, r *http.Request) {
 	} else {
 		name = "name/" + parts[4]
 	}
-	uniname := parts[5]
 
 	url := "https://restcountries.com/v3.1/" + name
 
@@ -96,47 +95,47 @@ func HandleNabUniRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for a := 0; a < len(nabuni1); a++ {
-		url2 := "http://universities.hipolabs.com/search?name=" + uniname + "&country=" + nabuni1[a].Name.Name
+	if len(parts) > 5 {
+		for a := 0; a < len(nabuni1); a++ {
+			uniname := parts[5]
+			url2 := "http://universities.hipolabs.com/search?name=" + uniname + "&country=" + nabuni1[a].Name.Name
 
-		//url2 += nabuni1[a].Name.Name + ","
+			lastNewRequest, lasterr := http.NewRequest(http.MethodGet, url2, nil)
+			if lasterr != nil {
+				fmt.Errorf("Error in creating request:", lasterr.Error())
+			}
 
-		//url2 += ")"
+			lastNewRequest.Header.Add("content-type", "application/json")
 
-		lastNewRequest, lasterr := http.NewRequest(http.MethodGet, url2, nil)
-		if lasterr != nil {
-			fmt.Errorf("Error in creating request:", lasterr.Error())
+			lastclient := &http.Client{}
+			defer lastclient.CloseIdleConnections()
+
+			lastres, lasterr := client.Do(lastNewRequest)
+			//res, err := client.Get(url) // Alternative: Direct issuing of requests, but fewer configuration options
+			if lasterr != nil {
+				fmt.Errorf("Error in response:", lasterr.Error())
+			}
+
+			// Instantiate decoder
+			lastdecoder := json.NewDecoder(lastres.Body)
+			// Ensure parser fails on unknown fields (baseline way of detecting different structs than expected ones)
+			// Note: This does not lead to a check whether an actually provided field is empty!
+
+			// Prepare empty struct to populate
+			lastuni := []UNI{}
+
+			// Decode uni instance --> Alternative: "err := json.NewDecoder(r.Body).Decode(&uni)"
+			err = lastdecoder.Decode(&lastuni)
+			if lasterr != nil {
+				// Note: more often than not is this error due to client-side input, rather than server-side issues
+				http.Error(w, "Error during decoding: "+lasterr.Error(), http.StatusBadRequest)
+				return
+			}
+			fmt.Fprintf(w, "%v", lastuni)
 		}
-
-		lastNewRequest.Header.Add("content-type", "application/json")
-
-		lastclient := &http.Client{}
-		defer lastclient.CloseIdleConnections()
-
-		lastres, lasterr := client.Do(lastNewRequest)
-		//res, err := client.Get(url) // Alternative: Direct issuing of requests, but fewer configuration options
-		if lasterr != nil {
-			fmt.Errorf("Error in response:", lasterr.Error())
-		}
-
-		// Instantiate decoder
-		lastdecoder := json.NewDecoder(lastres.Body)
-		// Ensure parser fails on unknown fields (baseline way of detecting different structs than expected ones)
-		// Note: This does not lead to a check whether an actually provided field is empty!
-
-		// Prepare empty struct to populate
-		lastuni := []UNI{}
-
-		// Decode uni instance --> Alternative: "err := json.NewDecoder(r.Body).Decode(&uni)"
-		err = lastdecoder.Decode(&lastuni)
-		if lasterr != nil {
-			// Note: more often than not is this error due to client-side input, rather than server-side issues
-			http.Error(w, "Error during decoding: "+lasterr.Error(), http.StatusBadRequest)
-			return
-		}
-		fmt.Fprintf(w, "%v", lastuni)
+	} else {
+		fmt.Fprintf(w, "%v", nabuni)
 	}
-
 	// Return status code (good practice)
 	http.Error(w, "OK", http.StatusOK)
 }

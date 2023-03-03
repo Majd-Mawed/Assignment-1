@@ -85,7 +85,6 @@ func HandleUniRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(uni)
 	fmt.Fprintf(w, "%v", uni)
 	fmt.Fprintf(w, "%v", nabuni)
 
