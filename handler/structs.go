@@ -7,6 +7,11 @@ type UNI struct {
 	Isocode  string   `json:"alpha_two_code"`
 }
 
+type NABUNIINFO struct {
+	Languages map[string]interface{} `json:"languages"`
+	Map       map[string]interface{} `json:"maps"`
+}
+
 type NABUNI struct {
 	Name struct {
 		Name string `json:"common"`
