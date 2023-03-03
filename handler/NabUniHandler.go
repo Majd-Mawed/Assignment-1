@@ -133,51 +133,99 @@ func HandleNabUniRequest(w http.ResponseWriter, r *http.Request) {
 			}
 			//fmt.Fprintf(w, "%v", lastuni)
 
-			for i := 0; i < len(lastuni)/2; i++ {
-				fmt.Fprintf(w, "Name: ")
-				fmt.Fprintf(w, lastuni[i].Name)
-				fmt.Fprintf(w, "\n")
-				fmt.Fprintf(w, "Country: ")
-				fmt.Fprintf(w, lastuni[i].Country)
-				fmt.Fprintf(w, "\n")
-				for y := 0; y < len(lastuni[i].Webpages); y++ {
-					fmt.Fprintf(w, "Webpages: ")
-					fmt.Fprintf(w, lastuni[i].Webpages[y])
+			if len(lastuni) > 1 {
+				for i := 0; i < len(lastuni)/2; i++ {
+					fmt.Fprintf(w, "Name: ")
+					fmt.Fprintf(w, lastuni[i].Name)
+					fmt.Fprintf(w, "\n")
+					fmt.Fprintf(w, "Country: ")
+					fmt.Fprintf(w, lastuni[i].Country)
+					fmt.Fprintf(w, "\n")
+					for y := 0; y < len(lastuni[i].Webpages); y++ {
+						fmt.Fprintf(w, "Webpages: ")
+						fmt.Fprintf(w, lastuni[i].Webpages[y])
+						fmt.Fprintf(w, "\n")
+					}
+					fmt.Fprintf(w, "Isocode: ")
+					fmt.Fprintf(w, lastuni[i].Isocode)
+					fmt.Fprintf(w, "\n")
+
+					newurl := "https://restcountries.com/v3.1/name/" + lastuni[i].Country
+					newNewRequest, newerr := http.NewRequest(http.MethodGet, newurl, nil)
+					if newerr != nil {
+						fmt.Errorf("Error in creating request:", newerr.Error())
+					}
+					newNewRequest.Header.Add("content-type", "application/json")
+					newclient := &http.Client{}
+					defer newclient.CloseIdleConnections()
+					newres, newerr := client.Do(nabNewRequest)
+					//res, err := client.Get(url) // Alternative: Direct issuing of requests, but fewer configuration options
+					if newerr != nil {
+						fmt.Errorf("Error in response:", newerr.Error())
+					}
+					newdecoder := json.NewDecoder(newres.Body)
+					newuni := []NABUNIINFO{}
+					newerr = newdecoder.Decode(&newuni)
+					if newerr != nil {
+						// Note: more often than not is this error due to client-side input, rather than server-side issues
+						http.Error(w, "Error during decoding: "+newerr.Error(), http.StatusBadRequest)
+						return
+					}
+					fmt.Fprintf(w, "Languages: ")
+					fmt.Fprintf(w, "%v", newuni[a].Languages)
+					fmt.Fprintf(w, "\n")
+					fmt.Fprintf(w, "Maps: ")
+					fmt.Fprintf(w, "%v", newuni[a].Map)
+					fmt.Fprintf(w, "\n")
+					fmt.Fprintf(w, "\n")
+
+				}
+			} else {
+				for i := 0; i < len(lastuni); i++ {
+					fmt.Fprintf(w, "Name: ")
+					fmt.Fprintf(w, lastuni[i].Name)
+					fmt.Fprintf(w, "\n")
+					fmt.Fprintf(w, "Country: ")
+					fmt.Fprintf(w, lastuni[i].Country)
+					fmt.Fprintf(w, "\n")
+					for y := 0; y < len(lastuni[i].Webpages); y++ {
+						fmt.Fprintf(w, "Webpages: ")
+						fmt.Fprintf(w, lastuni[i].Webpages[y])
+						fmt.Fprintf(w, "\n")
+					}
+					fmt.Fprintf(w, "Isocode: ")
+					fmt.Fprintf(w, lastuni[i].Isocode)
+					fmt.Fprintf(w, "\n")
+
+					newurl := "https://restcountries.com/v3.1/name/" + lastuni[i].Country
+					newNewRequest, newerr := http.NewRequest(http.MethodGet, newurl, nil)
+					if newerr != nil {
+						fmt.Errorf("Error in creating request:", newerr.Error())
+					}
+					newNewRequest.Header.Add("content-type", "application/json")
+					newclient := &http.Client{}
+					defer newclient.CloseIdleConnections()
+					newres, newerr := client.Do(nabNewRequest)
+					//res, err := client.Get(url) // Alternative: Direct issuing of requests, but fewer configuration options
+					if newerr != nil {
+						fmt.Errorf("Error in response:", newerr.Error())
+					}
+					newdecoder := json.NewDecoder(newres.Body)
+					newuni := []NABUNIINFO{}
+					newerr = newdecoder.Decode(&newuni)
+					if newerr != nil {
+						// Note: more often than not is this error due to client-side input, rather than server-side issues
+						http.Error(w, "Error during decoding: "+newerr.Error(), http.StatusBadRequest)
+						return
+					}
+					fmt.Fprintf(w, "Languages: ")
+					fmt.Fprintf(w, "%v", newuni[a].Languages)
+					fmt.Fprintf(w, "\n")
+					fmt.Fprintf(w, "Maps: ")
+					fmt.Fprintf(w, "%v", newuni[a].Map)
+					fmt.Fprintf(w, "\n")
 					fmt.Fprintf(w, "\n")
 				}
-				fmt.Fprintf(w, "Isocode: ")
-				fmt.Fprintf(w, lastuni[i].Isocode)
-				fmt.Fprintf(w, "\n")
-
-				newurl := "https://restcountries.com/v3.1/name/" + lastuni[i].Country
-				newNewRequest, newerr := http.NewRequest(http.MethodGet, newurl, nil)
-				if newerr != nil {
-					fmt.Errorf("Error in creating request:", newerr.Error())
-				}
-				newNewRequest.Header.Add("content-type", "application/json")
-				newclient := &http.Client{}
-				defer newclient.CloseIdleConnections()
-				newres, newerr := client.Do(nabNewRequest)
-				//res, err := client.Get(url) // Alternative: Direct issuing of requests, but fewer configuration options
-				if newerr != nil {
-					fmt.Errorf("Error in response:", newerr.Error())
-				}
-				newdecoder := json.NewDecoder(newres.Body)
-				newuni := []NABUNIINFO{}
-				newerr = newdecoder.Decode(&newuni)
-				if newerr != nil {
-					// Note: more often than not is this error due to client-side input, rather than server-side issues
-					http.Error(w, "Error during decoding: "+newerr.Error(), http.StatusBadRequest)
-					return
-				}
-				fmt.Fprintf(w, "Languages: ")
-				fmt.Fprintf(w, "%v", newuni[a].Languages)
-				fmt.Fprintf(w, "\n")
-				fmt.Fprintf(w, "Maps: ")
-				fmt.Fprintf(w, "%v", newuni[a].Map)
-				fmt.Fprintf(w, "\n")
-				fmt.Fprintf(w, "\n")
-
 			}
 		}
 
