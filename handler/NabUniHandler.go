@@ -96,6 +96,7 @@ func HandleNabUniRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(parts) > 5 {
+		fmt.Fprintf(w, "[ \n")
 		for a := 0; a < len(nabuni1); a++ {
 			uniname := parts[5]
 			url2 := "http://universities.hipolabs.com/search?name=" + uniname + "&country=" + nabuni1[a].Name.Name
@@ -135,18 +136,19 @@ func HandleNabUniRequest(w http.ResponseWriter, r *http.Request) {
 
 			if len(lastuni) > 1 {
 				for i := 0; i < len(lastuni)/2; i++ {
-					fmt.Fprintf(w, "Name: ")
+					fmt.Fprintf(w, "  { \n ")
+					fmt.Fprintf(w, "    Name: ")
 					fmt.Fprintf(w, lastuni[i].Name)
 					fmt.Fprintf(w, "\n")
-					fmt.Fprintf(w, "Country: ")
+					fmt.Fprintf(w, "     Country: ")
 					fmt.Fprintf(w, lastuni[i].Country)
 					fmt.Fprintf(w, "\n")
 					for y := 0; y < len(lastuni[i].Webpages); y++ {
-						fmt.Fprintf(w, "Webpages: ")
+						fmt.Fprintf(w, "     Webpages: ")
 						fmt.Fprintf(w, lastuni[i].Webpages[y])
 						fmt.Fprintf(w, "\n")
 					}
-					fmt.Fprintf(w, "Isocode: ")
+					fmt.Fprintf(w, "     Isocode: ")
 					fmt.Fprintf(w, lastuni[i].Isocode)
 					fmt.Fprintf(w, "\n")
 
@@ -171,29 +173,30 @@ func HandleNabUniRequest(w http.ResponseWriter, r *http.Request) {
 						http.Error(w, "Error during decoding: "+newerr.Error(), http.StatusBadRequest)
 						return
 					}
-					fmt.Fprintf(w, "Languages: ")
+					fmt.Fprintf(w, "     Languages: ")
 					fmt.Fprintf(w, "%v", newuni[a].Languages)
 					fmt.Fprintf(w, "\n")
-					fmt.Fprintf(w, "Maps: ")
+					fmt.Fprintf(w, "     Maps: ")
 					fmt.Fprintf(w, "%v", newuni[a].Map)
 					fmt.Fprintf(w, "\n")
-					fmt.Fprintf(w, "\n")
+					fmt.Fprintf(w, "  } \n\n")
 
 				}
 			} else {
 				for i := 0; i < len(lastuni); i++ {
-					fmt.Fprintf(w, "Name: ")
+					fmt.Fprintf(w, "  { \n ")
+					fmt.Fprintf(w, "    Name: ")
 					fmt.Fprintf(w, lastuni[i].Name)
 					fmt.Fprintf(w, "\n")
-					fmt.Fprintf(w, "Country: ")
+					fmt.Fprintf(w, "     Country: ")
 					fmt.Fprintf(w, lastuni[i].Country)
 					fmt.Fprintf(w, "\n")
 					for y := 0; y < len(lastuni[i].Webpages); y++ {
-						fmt.Fprintf(w, "Webpages: ")
+						fmt.Fprintf(w, "     Webpages: ")
 						fmt.Fprintf(w, lastuni[i].Webpages[y])
 						fmt.Fprintf(w, "\n")
 					}
-					fmt.Fprintf(w, "Isocode: ")
+					fmt.Fprintf(w, "     Isocode: ")
 					fmt.Fprintf(w, lastuni[i].Isocode)
 					fmt.Fprintf(w, "\n")
 
@@ -218,19 +221,33 @@ func HandleNabUniRequest(w http.ResponseWriter, r *http.Request) {
 						http.Error(w, "Error during decoding: "+newerr.Error(), http.StatusBadRequest)
 						return
 					}
-					fmt.Fprintf(w, "Languages: ")
+					fmt.Fprintf(w, "     Languages: ")
 					fmt.Fprintf(w, "%v", newuni[a].Languages)
 					fmt.Fprintf(w, "\n")
-					fmt.Fprintf(w, "Maps: ")
+					fmt.Fprintf(w, "     Maps: ")
 					fmt.Fprintf(w, "%v", newuni[a].Map)
 					fmt.Fprintf(w, "\n")
-					fmt.Fprintf(w, "\n")
+					fmt.Fprintf(w, "  } \n\n")
 				}
 			}
 		}
+		fmt.Fprintf(w, "] \n")
 
 	} else {
-		fmt.Fprintf(w, "%v", nabuni)
+		for i := 0; i < len(nabuni); i++ {
+			fmt.Fprintf(w, "Country: ")
+			fmt.Fprintf(w, nabuni[i].Name.Name)
+			fmt.Fprintf(w, "\n")
+			fmt.Fprintf(w, "Boarders:\n{\n")
+			for a := 0; a < len(nabuni[i].Borders); a++ {
+				fmt.Fprintf(w, "  %v", a+1)
+				fmt.Fprintf(w, ". ")
+				fmt.Fprintf(w, nabuni[i].Borders[a])
+				fmt.Fprintf(w, "\n")
+			}
+			fmt.Fprintf(w, "}\n")
+			//fmt.Fprintf(w, "%v", nabuni)
+		}
 	}
 
 	// Return status code (good practice)
